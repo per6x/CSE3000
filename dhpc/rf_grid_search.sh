@@ -1,8 +1,8 @@
 #!/bin/sh
 
 #SBATCH --job-name=rf_grid_search
-#SBATCH --output=rf_grid_search.%j.out
-#SBATCH --error=rf_grid_search.%j.err
+#SBATCH --output=/home/ppersianov/rf_grid_search.%j.out
+#SBATCH --error=/home/ppersianov/rf_grid_search.%j.err
 #SBATCH --partition=compute
 #SBATCH --time=01:00:00
 #SBATCH --nodes=1
