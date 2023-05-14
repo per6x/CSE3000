@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #SBATCH --job-name=rf_grid_search
 #SBATCH --output=rf_grid_search.%j.out
