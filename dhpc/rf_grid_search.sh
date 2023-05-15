@@ -23,4 +23,4 @@ module load py-pip
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-srun python /tudelft.net/staff-umbrella/ppersianovcse3000/CSE3000/kraken_taxonomy/dhcp_rf_grid.py
+srun python /tudelft.net/staff-umbrella/ppersianovcse3000/CSE3000/dhpc/dhcp_rf_grid.py
