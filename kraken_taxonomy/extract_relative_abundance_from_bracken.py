@@ -1,21 +1,17 @@
 import concurrent.futures
-from multiprocessing import freeze_support
-
 import pandas as pd
+from multiprocessing import freeze_support
 
 
 # define a function to process each accession
 def process_accession(acc, rank="S"):
     try:
         df = pd.read_table(
-            f"./data/{acc}/report.txt",
-            names=["%", "total count", "self count", "taxonomy", "tax id", "name"],
+            f"./data/{acc}/{acc}.bracken",
             skipinitialspace=True,
         )
-        df = df.loc[(df["taxonomy"] == rank)]
-        df = df[["total count", "name"]].set_index("name").T
+        df = df[["name", "fraction_total_reads"]].set_index("name", drop=True).T
         df.insert(0, "Sample", str(acc))  
-
         return df
     except FileNotFoundError as error:
         print(f"Report not found for {acc}", error)
@@ -39,4 +35,5 @@ if __name__ == "__main__":
     )
     result = result.fillna(0)
     result = result.set_index("Sample", drop=True)
-    result.to_csv("species_features_all.csv", sep=";")
+    result.to_csv("species_relative_abundance_features.csv", sep=";")
+    print(result.shape)
