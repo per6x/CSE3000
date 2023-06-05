@@ -30,10 +30,9 @@ from xgboost import XGBClassifier
 # ## Load data
 
 # %%
-# X = pd.read_csv("species_relative_abundance.csv", sep=";")
-X = pd.read_csv("/home/ppersianov/CSE3000/kraken_taxonomy/genus_features_all.csv", sep=";")
-y = pd.read_csv("/home/ppersianov/CSE3000/labels.csv", sep=";")
-y = y.loc[y["Sample"].isin(X["Sample"])].set_index("Sample", drop=True)["Label"]
+X = pd.read_csv("genus_features_all.csv", sep=";")
+y = pd.read_csv("../labels.csv", sep=";")
+y = y.loc[y["Sample"].isin(X["Sample"])].set_index("Sample", drop=True)["Class"]
 X = X.set_index("Sample", drop=True)
 
 assert X.shape[0] == y.shape[0]
