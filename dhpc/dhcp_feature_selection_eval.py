@@ -277,21 +277,21 @@ n_features_to_select = 100
 # Define the classifiers
 classifiers = {
     'RF': RandomForestClassifier(warm_start=True, n_jobs=-1, random_state=42),
-    # 'AdaBoost': AdaBoostClassifier(random_state=42),
-    # 'XGBoost': XGBClassifier(n_jobs=-1, random_state=42),
-    # 'LR': LogisticRegression(warm_start=True, n_jobs=-1, random_state=42),
-    # 'SVM': SVC(random_state=42),
+    'AdaBoost': AdaBoostClassifier(random_state=42),
+    'XGBoost': XGBClassifier(n_jobs=-1, random_state=42),
+    'LR': LogisticRegression(warm_start=True, n_jobs=-1, random_state=42),
+    'SVM': SVC(random_state=42),
 }
 
 # Define the feature selection algorithms
 feature_selection_algorithms = {
     'Chi-square': SelectKBest(score_func=chi2, k=n_features_to_select),
-    # 'ANOVA': SelectKBest(score_func=f_classif, k=n_features_to_select),
-    # 'Information Gain': SelectKBest(score_func=mutual_info_classif, k=n_features_to_select),
-    # 'XGBoost': SelectFromModel(estimator=XGBClassifier(n_jobs=-1), max_features=n_features_to_select, threshold=-np.inf),
-    # 'MRMR': MRMRFeatureSelection(n_jobs=-1, random_state=42),
-    # 'LASSO': SelectFromModel(estimator=Lasso(alpha=1), max_features=n_features_to_select, threshold=-np.inf),
-    # 'All Features': None,
+    'ANOVA': SelectKBest(score_func=f_classif, k=n_features_to_select),
+    'Information Gain': SelectKBest(score_func=mutual_info_classif, k=n_features_to_select),
+    'XGBoost': SelectFromModel(estimator=XGBClassifier(n_jobs=-1), max_features=n_features_to_select, threshold=-np.inf),
+    'MRMR': MRMRFeatureSelection(n_jobs=-1, random_state=42),
+    'LASSO': SelectFromModel(estimator=Lasso(alpha=1), max_features=n_features_to_select, threshold=-np.inf),
+    'All Features': None,
 }
 
 # Define the parameter distributions for each classifier
