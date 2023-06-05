@@ -360,7 +360,7 @@ feature_selection_search.plot_results(plot_output_path='fs_100_species.png')
 
 # Define the parameter distributions for each classifier
 param_distributions = {
-    "Random Forest": {
+    "RF": {
         "classification__n_estimators": randint(1, 250),
         "classification__criterion": ["gini", "entropy"],
         "classification__max_depth": [None] + list(range(1, 20)),
@@ -385,16 +385,16 @@ param_distributions = {
         "classification__reg_alpha": uniform(0, 1),
         "classification__reg_lambda": uniform(0, 1),
     },
-    "LR": {  # Logistic regression
+    "LR": { # Logistic regression
         "classification__C": uniform(0.1, 1.0),
         "classification__penalty": ["elasticnet", "l1", "l2"],
         "classification__class_weight": [None, "balanced"],
-        "classification__max_iter": [10000],
+        "classification__max_iter": [100000],
     },
     "SVM": {
         "classification__C": uniform(0.1, 1.0),
         "classification__kernel": ["linear", "poly", "rbf", "sigmoid"],
-        "classification__degree": randint(1, 10),
+        "classification__degree": randint(1, 3),
         "classification__gamma": ["scale", "auto"],
         "classification__class_weight": [None, "balanced"],
         "classification__probability": [True, False],
