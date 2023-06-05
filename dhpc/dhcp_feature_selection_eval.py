@@ -345,7 +345,6 @@ feature_selection_search = FeatureSelectionRandomizedSearch(
     metrics=["accuracy", "f1", "roc_auc"],
     test_size=0.2,
     use_smote=False,
-    use_log_scale=False,
     num_features=n_features_to_select,
     n_cv=2,
     n_iter=2,
