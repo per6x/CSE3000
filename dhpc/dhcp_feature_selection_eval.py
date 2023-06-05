@@ -1,6 +1,9 @@
 # %% [markdown]
 # ## Imports
 
+import pickle
+from datetime import datetime
+
 # %%
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,11 +31,11 @@ from xgboost import XGBClassifier
 
 # %%
 # X = pd.read_csv("species_relative_abundance.csv", sep=";")
-X = pd.read_csv("/home/ppersianov/CSE3000/kraken_taxonomy/genus_features.csv", sep=";")
+X = pd.read_csv("/home/ppersianov/CSE3000/kraken_taxonomy/genus_features_all.csv", sep=";")
 y = pd.read_csv("/home/ppersianov/CSE3000/labels.csv", sep=";")
 y = y.loc[y["Sample"].isin(X["Sample"])].set_index("Sample", drop=True)["Label"]
 X = X.set_index("Sample", drop=True)
-print(X.shape)
+
 assert X.shape[0] == y.shape[0]
 
 # %% [markdown]
@@ -273,38 +276,87 @@ n_features_to_select = 100
 
 # Define the classifiers
 classifiers = {
-    "Random Forest": RandomForestClassifier(
-        warm_start=True, n_jobs=-1, random_state=42
-    ),
-    "AdaBoost": AdaBoostClassifier(random_state=42),
-    "XGBoost": XGBClassifier(n_jobs=-1, random_state=42),
-    "LR": LogisticRegression(warm_start=True, n_jobs=-1, random_state=42),
-    "SVM": SVC(random_state=42),
+    'RF': RandomForestClassifier(warm_start=True, n_jobs=-1, random_state=42),
+    # 'AdaBoost': AdaBoostClassifier(random_state=42),
+    # 'XGBoost': XGBClassifier(n_jobs=-1, random_state=42),
+    # 'LR': LogisticRegression(warm_start=True, n_jobs=-1, random_state=42),
+    # 'SVM': SVC(random_state=42),
 }
 
 # Define the feature selection algorithms
 feature_selection_algorithms = {
-    "Sequential Feature Selector AdaBoost": SequentialFeatureSelector(
-        estimator=AdaBoostClassifier(),
-        n_features_to_select=n_features_to_select,
-        n_jobs=-1,
-    ),
-    "Chi-square": SelectKBest(score_func=chi2, k=n_features_to_select),
-    "ANOVA": SelectKBest(score_func=f_classif, k=n_features_to_select),
-    "Information Gain": SelectKBest(
-        score_func=mutual_info_classif, k=n_features_to_select
-    ),
-    "XGBoost": SelectFromModel(
-        estimator=XGBClassifier(n_jobs=-1),
-        max_features=n_features_to_select,
-        threshold=-np.inf,
-    ),
-    "MRMR": MRMRFeatureSelection(n_jobs=-1, random_state=42),
-    "LASSO": SelectFromModel(
-        estimator=Lasso(alpha=1), max_features=n_features_to_select, threshold=-np.inf
-    ),
-    "All Features": None,
+    'Chi-square': SelectKBest(score_func=chi2, k=n_features_to_select),
+    # 'ANOVA': SelectKBest(score_func=f_classif, k=n_features_to_select),
+    # 'Information Gain': SelectKBest(score_func=mutual_info_classif, k=n_features_to_select),
+    # 'XGBoost': SelectFromModel(estimator=XGBClassifier(n_jobs=-1), max_features=n_features_to_select, threshold=-np.inf),
+    # 'MRMR': MRMRFeatureSelection(n_jobs=-1, random_state=42),
+    # 'LASSO': SelectFromModel(estimator=Lasso(alpha=1), max_features=n_features_to_select, threshold=-np.inf),
+    # 'All Features': None,
 }
+
+# Define the parameter distributions for each classifier
+param_distributions = {
+    "RF": {
+        "classification__n_estimators": randint(1, 250),
+        "classification__criterion": ["gini", "entropy"],
+        "classification__max_depth": [None] + list(range(1, 20)),
+        "classification__min_samples_split": randint(2, 20),
+        "classification__max_features": ["sqrt", "log2"],
+        "classification__min_samples_leaf": randint(1, 10),
+        "classification__bootstrap": [True, False],
+    },
+    "AdaBoost": {
+        "classification__n_estimators": randint(1, 250),
+        "classification__learning_rate": uniform(0.01, 1.0),
+        "classification__estimator": [RandomForestClassifier()],
+        "classification__algorithm": ["SAMME", "SAMME.R"],
+        "classification__random_state": [None, 42],
+    },
+    "XGBoost": {
+        "classification__n_estimators": randint(1, 250),
+        "classification__learning_rate": uniform(0.01, 1.0),
+        "classification__max_depth": randint(1, 10),
+        "classification__subsample": uniform(0.6, 0.4),
+        "classification__colsample_bytree": uniform(0.6, 0.4),
+        "classification__reg_alpha": uniform(0, 1),
+        "classification__reg_lambda": uniform(0, 1),
+    },
+    "LR": { # Logistic regression
+        "classification__C": uniform(0.1, 1.0),
+        "classification__penalty": ["elasticnet", "l1", "l2"],
+        "classification__class_weight": [None, "balanced"],
+        "classification__max_iter": [100000],
+    },
+    "SVM": {
+        "classification__C": uniform(0.1, 1.0),
+        "classification__kernel": ["linear", "poly", "rbf", "sigmoid"],
+        "classification__degree": randint(1, 3),
+        "classification__gamma": ["scale", "auto"],
+        "classification__class_weight": [None, "balanced"],
+        "classification__probability": [True, False],
+    },
+}
+
+# Instantiate the FeatureSelectionRandomizedSearch class
+feature_selection_search = FeatureSelectionRandomizedSearch(
+    classifiers,
+    param_distributions,
+    feature_selection_algorithms,
+    metrics=["accuracy", "f1", "roc_auc"],
+    test_size=0.2,
+    use_smote=False,
+    use_log_scale=False,
+    num_features=n_features_to_select,
+    n_cv=2,
+    n_iter=2,
+    scoring='f1',
+)
+
+# Fit the search using your data
+feature_selection_search.fit(X, y)
+
+# Plot the results
+feature_selection_search.plot_results(plot_output_path='fs_100_species.png')
 
 # Define the parameter distributions for each classifier
 param_distributions = {
@@ -368,3 +420,7 @@ feature_selection_search.fit(X, y)
 
 # Plot the results
 feature_selection_search.plot_results()
+
+
+with open(f'feature_selection_search_results_genus_{datetime.now().strftime("%d.%m.%Y_%H.%M.%S")}.p', 'wb') as fp:
+    pickle.dump(feature_selection_search.results, fp, protocol=pickle.HIGHEST_PROTOCOL)
