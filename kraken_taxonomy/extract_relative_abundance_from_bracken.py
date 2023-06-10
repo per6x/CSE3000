@@ -1,13 +1,14 @@
 import concurrent.futures
-import pandas as pd
 from multiprocessing import freeze_support
+
+import pandas as pd
 
 
 # define a function to process each accession
-def process_accession(acc, rank="S"):
+def process_accession(acc, rank='species'):
     try:
         df = pd.read_table(
-            f"./data/{acc}/{acc}.bracken",
+            f"./data/{acc}/{rank}_relative_abundance.bracken",
             skipinitialspace=True,
         )
         df = df[["name", "fraction_total_reads"]].set_index("name", drop=True).T
@@ -35,5 +36,5 @@ if __name__ == "__main__":
     )
     result = result.fillna(0)
     result = result.set_index("Sample", drop=True)
-    result.to_csv("species_relative_abundance_features.csv", sep=";")
+    result.to_csv("species_relative_abundance.csv", sep=";")
     print(result.shape)

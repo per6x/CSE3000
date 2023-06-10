@@ -109,7 +109,7 @@ param_distributions = {
     'learning_rate' : uniform(0.001, 1),
     'depth' : randint(2, 10),
     'l2_leaf_reg' : randint(2, 10),
-    'random_strength' : uniform(0, 10),
+    'random_strength' : uniform(1, 10),
   }
 }
 
